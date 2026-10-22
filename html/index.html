@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>inkBOOK Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      background-color: #ffffff;
+      overflow: hidden;
+    }
+
+    img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 600px;
+      height: 800px;
+    }
+  </style>
+</head>
+
+<body>
+  <img id="dash" src="dashboard.png" alt="Dashboard">
+
+  <script>
+    var dashboardImg = document.getElementById('dash');
+
+    // KONFIGURACJA:
+    var INTERVAL_MINUTES = 5;  // Tyle samo co w cronie (*/5)
+    var RENDER_BUFFER_SEC = 20; // 20 sekund bufora na wyrenderowanie obrazu przez scraper
+
+    function refreshImage() {
+      // Podmiana grafiki z unikalnym timestampem (omija cache przeglądarki)
+      dashboardImg.src = 'dashboard.png?t=' + new Date().getTime();
+
+      // Zaplanuj następne odświeżenie idealnie zsynchronizowane z zegarem
+      scheduleNextSync();
+    }
+
+    function scheduleNextSync() {
+      var now = new Date();
+      var intervalMs = INTERVAL_MINUTES * 60 * 1000;
+      var bufferMs = RENDER_BUFFER_SEC * 1000;
+
+      // Liczymy pozycję w aktualnym 5-minutowym oknie czasu (względem epoki Unix)
+      var currentWindowTime = now.getTime() % intervalMs;
+      var delay;
+
+      if (currentWindowTime < bufferMs) {
+        // Jesteśmy tuż po pełnej godzinie/minucie (np. 12:00:05), czekamy do 12:00:20
+        delay = bufferMs - currentWindowTime;
+      } else {
+        // Czekamy do następnego okna + bufor (np. do 12:05:20)
+        delay = (intervalMs - currentWindowTime) + bufferMs;
+      }
+
+      setTimeout(refreshImage, delay);
+    }
+
+    // Pierwsze uruchomienie po otwarciu strony
+    window.addEventListener('load', function () {
+      refreshImage();
+    });
+  </script>
+</body>
+
+</html>

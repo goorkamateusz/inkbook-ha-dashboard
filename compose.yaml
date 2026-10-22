@@ -1,0 +1,40 @@
+services:
+  caddy:
+    image: caddy:alpine
+    container_name: inkbook_test_caddy
+    restart: unless-stopped
+    ports:
+      - 80:80
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./html:/usr/share/caddy:ro
+  dashboard-scraper:
+    image: sibbl/hass-lovelace-kindle-screensaver:latest
+    container_name: inkbook_scraper
+    restart: unless-stopped
+    environment:
+      # Adres Twojego Home Assistanta (użyj lokalnego IP serwera)
+      - HA_BASE_URL=${HA_BASE_URL}
+      # Ścieżka do widoku (na test może być domyślny /lovelace/0)
+      - HA_SCREENSHOT_URL=${HA_SCREENSHOT_URL}
+      # Wklej wygenerowany token
+      - HA_ACCESS_TOKEN=${HA_TOKEN}
+      # Lokalizacja
+      - TZ=Europe/Warsaw
+      - LANGUAGE=pl
+      # Miejsce zapisu pliku
+      - OUTPUT_PATH=/output/dashboard.png
+      # Częstotliwość robienia zrzutu (Cron: co 5 minut)
+      - CRON_JOB=*/5 * * * *
+      # Czas w ms na załadowanie kart po otwarciu strony
+      - RENDERING_DELAY=3000
+      # Optymalizacja pod E-Ink: konwersja na odcienie szarości
+      - GRAYSCALE=true
+      # Skalowanie (1 = natywne)
+      - DEVICE_SCALE_FACTOR=1
+      # Obrót obrazu o 180 stopni (obsługuje 0, 90, 180, 270)
+      - ROTATION=180
+    volumes:
+      - ./html:/output
+
+networks: {}
