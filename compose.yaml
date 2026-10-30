@@ -4,7 +4,7 @@ services:
     container_name: inkbook_test_caddy
     restart: unless-stopped
     ports:
-      - 80:80
+      - 10103:80
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - ./html:/usr/share/caddy:ro
@@ -34,7 +34,13 @@ services:
       - DEVICE_SCALE_FACTOR=1
       # Obrót obrazu o 180 stopni (obsługuje 0, 90, 180, 270)
       - ROTATION=180
+      # Wysokość ekranu x 3
+      - RENDERING_SCREEN_HEIGHT=1600
     volumes:
       - ./html:/output
+    labels:
+      - homepage.group=SmartHome
+      - homepage.name=InkBook
+      - homepage.href=http://192.168.100.121:10103
 
 networks: {}
